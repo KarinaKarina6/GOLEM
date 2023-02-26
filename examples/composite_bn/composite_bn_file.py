@@ -9,12 +9,11 @@ import os
 parentdir = os.getcwd()
 
 sys.path.insert(0, parentdir)
-# from golem.core.dag.graph import Graph
 from copy import deepcopy
 import pandas as pd
 from random import choice, sample
 from sklearn import preprocessing
-import bamt.Preprocessors as pp
+import bamt.preprocessors as pp
 from golem.core.optimisers.optimization_parameters import GraphRequirements
 from golem.core.dag.verification_rules import has_no_cycle, has_no_self_cycled_nodes
 from golem.core.adapter import DirectAdapter
@@ -30,18 +29,14 @@ from pgmpy.estimators import K2Score
 from math import ceil
 from composite_model import CompositeModel
 from composite_node import CompositeNode
-import bamt.Networks as Nets
+import bamt.networks as Nets
 from scipy.stats import norm
 from numpy import std, mean, log
 from sklearn.metrics import mean_squared_error
 from itertools import chain
 from sklearn.model_selection import train_test_split
-# import matplotlib.pyplot as plt
-
 from golem.core.dag.linked_graph import LinkedGraph
-
 from golem.core.dag.graph_utils import ordered_subnodes_hierarchy
-
 from ML import ML_models
 from sklearn.linear_model import (LinearRegression as SklearnLinReg, LogisticRegression as SklearnLogReg)
 

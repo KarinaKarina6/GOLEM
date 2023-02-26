@@ -104,7 +104,7 @@ def _has_no_duplicates(graph):
 
 def run_example():
     
-    data = pd.read_csv('C:/Users/anaxa/Documents/Projects/CompositeBayesianNetworks/FEDOT/examples/data/'+file+'.csv') 
+    data = pd.read_csv('./examples/data/'+file+'.csv') 
     data.drop(['Unnamed: 0'], axis=1, inplace=True)
     data.reset_index(inplace=True, drop=True)
 

@@ -117,7 +117,7 @@ def custom_crossover_exchange_parents_one(graph_first, graph_second, max_depth):
     num_cros = 100
     try:
         for _ in range(num_cros):
-
+            parents = []
             old_edges1 = []
             new_graph_first=deepcopy(graph_first)
 

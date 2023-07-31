@@ -1,0 +1,6 @@
+Structure = [('bronc', 'tub'), ('smoke', 'bronc'), ('dysp', 'bronc'), ('xray', 'either')]
+Score = 2666
+Likelihood = -2665.110788586161
+Spent time = 0.0619585
+f1 = 0.16666666666666666
+SHD = 16

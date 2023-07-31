@@ -1,0 +1,15 @@
+0: lin
+1: lin
+2: nonlin
+3: nonlin
+4: nonlin
+5: nonlin
+6: nonlin
+7: nonlin
+8: nonlin
+9: nonlin
+10: nonlin
+11: nonlin
+12: nonlin
+13: nonlin
+14: nonlin

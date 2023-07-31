@@ -1,0 +1,6 @@
+Structure = [('lung', 'either')]
+Score = 2789
+Likelihood = -2789.3043644580466
+Spent time = 0.07090538333333334
+f1 = 0.2222222222222222
+SHD = 15

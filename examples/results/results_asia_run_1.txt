@@ -1,0 +1,6 @@
+Structure = [('dysp', 'tub'), ('smoke', 'tub'), ('xray', 'lung'), ('dysp', 'bronc')]
+Score = 2751
+Likelihood = -2749.9128292671135
+Spent time = 0.5920938833333333
+f1 = 0.0
+SHD = 19

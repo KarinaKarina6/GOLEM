@@ -1,0 +1,8 @@
+Burglary Alarm
+Earthquake Alarm
+Alarm JohnCalls
+Alarm MaryCalls
+Burglary Alarm
+Earthquake Alarm
+Alarm JohnCalls
+Alarm MaryCalls

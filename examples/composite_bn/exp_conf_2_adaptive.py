@@ -38,12 +38,13 @@ from examples.bn.bn_genetic_operators import (
     custom_mutation_delete_structure as classical_mutation_delete_structure,
     custom_mutation_reverse_structure as classical_mutation_reverse_structure
 )
+from golem.core.optimisers.adaptive.operator_agent import MutationAgentTypeEnum
 
 
 
 def run_example(file):
 
-    with open('examples/data/5000/txt/'+(file)+'.txt') as f:
+    with open('examples/data/1000/txt/'+(file)+'.txt') as f:
         lines = f.readlines()
     true_net = []
     for l in lines:
@@ -52,7 +53,7 @@ def run_example(file):
         true_net.append((e0, e1))    
     
     fitness_function = FitnessFunction()
-    FF_classical = fitness_function.classical_metric_2
+    FF_classical = fitness_function.classical_K2 # classical_metric_2
     FF_composite = fitness_function.composite_metric
 
     if bn_type == 'classical':
@@ -91,7 +92,7 @@ def run_example(file):
         return 
 
 
-    data = pd.read_csv('examples/data/5000/csv/'+file+'.csv')   
+    data = pd.read_csv('examples/data/1000/csv/'+file+'.csv')   
 
     data.drop(['Unnamed: 0'], axis=1, inplace=True)
     data.dropna(inplace=True)
@@ -101,16 +102,23 @@ def run_example(file):
     encoder = preprocessing.LabelEncoder()
     discretizer = preprocessing.KBinsDiscretizer(n_bins=5, encode='ordinal', strategy='quantile')
 
-    if bn_type == 'classical':
-        p = pp.Preprocessor([('encoder', encoder), ('discretizer', discretizer)]) 
-        discretized_data, _ = p.apply(data)
-        data_train_test , data_val = train_test_split(discretized_data, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
-        data_train , data_test = train_test_split(data_train_test, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
-    elif bn_type == 'composite':
-        p = pp.Preprocessor([('encoder', encoder)])
-        discretized_data, _ = p.apply(data)
-        data_train_test , data_val = train_test_split(discretized_data, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
-        data_train , data_test = train_test_split(data_train_test, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
+    # if bn_type == 'classical':
+    #     p = pp.Preprocessor([('encoder', encoder), ('discretizer', discretizer)]) 
+    #     discretized_data, _ = p.apply(data)
+    #     data_train_test , data_val = train_test_split(discretized_data, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
+    #     data_train , data_test = train_test_split(data_train_test, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
+    # elif bn_type == 'composite':
+    #     p = pp.Preprocessor([('encoder', encoder)])
+    #     discretized_data, _ = p.apply(data)
+    #     data_train_test , data_val = train_test_split(discretized_data, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
+    #     data_train , data_test = train_test_split(data_train_test, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
+
+    p = pp.Preprocessor([('encoder', encoder), ('discretizer', discretizer)]) 
+    discretized_data, _ = p.apply(data)
+    # data_train_test , data_val = train_test_split(discretized_data, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
+    # data_train , data_test = train_test_split(data_train_test, test_size=0.2, shuffle = True, random_state=random_seed[number-1])  
+    data_train = discretized_data
+    data_test = pd.DataFrame()
 
     # правила для байесовских сетей: нет петель, нет циклов, нет повторяющихся узлов
     rules = Rule().bn_rules()
@@ -134,13 +142,14 @@ def run_example(file):
         max_depth=100, 
         num_of_generations=n_generation,
         timeout=timedelta(minutes=time_m),
-        history_dir = None,
+        # history_dir = None,
         early_stopping_iterations = early_stopping_iterations,
         n_jobs=-1
         )
 
     optimiser_parameters = GPAlgorithmParameters(
         multi_objective=objective.is_multi_objective,
+        adaptive_mutation_type=MutationAgentTypeEnum.bandit,
         pop_size=pop_size,
         max_pop_size = pop_size,
         crossover_prob=crossover_probability, 
@@ -167,16 +176,18 @@ def run_example(file):
     # optimized_graphs содержит всех недоминируемых особей, которые когда-либо жили в популяции
     # в результате получаем несколько индивидов
     optimized_graphs = optimiser.optimise(objective)
+    optimiser.history.save('C:\\Users\\anaxa\\Documents\\Projects\\GOLEM_fork\\GOLEM\\examples\\results\\history_adaptive.json')
 
     vars_of_interest = {}
     comparison = Comparison()
     LL = Likelihood()    
 
     for optimized_graph in optimized_graphs:
-        if bn_type == 'classical':
-            optimized_graph = fitness_function.edge_reduction(optimized_graph, data_train=data_train, data_test=data_val)
+        # if bn_type == 'classical':
+        #     optimized_graph = fitness_function.edge_reduction(optimized_graph, data_train=data_train, data_test=data_val)
         optimized_structure = [(str(edge[0]), str(edge[1])) for edge in optimized_graph.get_edges()]
-        score = fitness_function_GA(optimized_graph, data_train = data_train, data_test = data_val)
+        # score = fitness_function_GA(optimized_graph, data_train = data_train, data_test = data_val)
+        score = fitness_function_GA(optimized_graph, data_train = data_train, data_test = data_test)
         if bn_type == 'composite':
             score = - score
         spent_time = optimiser.timer.minutes_from_start
@@ -187,35 +198,59 @@ def run_example(file):
             data_train_test , data_val = train_test_split(discretized_data, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
             data_train , data_test = train_test_split(data_train_test, test_size=0.2, shuffle = True, random_state=random_seed[number-1])
 
-        likelihood = LL.likelihood_function(optimized_graph, data_train=data_train, data_val=data_val)
+        # likelihood = LL.likelihood_function(optimized_graph, data_train=data_train, data_val=data_val)
+        likelihood = LL.likelihood_function(optimized_graph, data_train=data_train, data_val=data_train)
         f1 = comparison.F1(optimized_structure, true_net)
         SHD = comparison.precision_recall(optimized_structure, true_net)['SHD']
         if bn_type == 'composite': 
             models = {node:node.content['parent_model'] for node in optimized_graph.nodes}
 
 
+        # true_net_graph = CompositeModel(nodes=[CompositeNode(nodes_from=None,
+        #                                             content={'name': vertex,
+        #                                                     'type': p.nodes_types[vertex],
+        #                                                     'parent_model': None}) 
+        #                                             for vertex in vertices])
+        # for parent,child in true_net:
+        #     parent_node = true_net_graph.get_nodes_by_name(parent)[0]
+        #     child_node = true_net_graph.get_nodes_by_name(child)[0]
+        #     child_node.nodes_from.append(parent_node)   
+        
+        # score_true_net = fitness_function_GA(true_net_graph, data_train = data_train, data_test = data_val)
+        # score_deviation = (score - score_true_net)*100 / score_true_net
+        
         vars_of_interest['Structure'] = optimized_structure
-        vars_of_interest['Score'] = score
+        vars_of_interest['Score'] = -score
+        # vars_of_interest['Score_deviation'] = score_deviation
         vars_of_interest['Likelihood'] = likelihood
         vars_of_interest['Spent time'] = spent_time
         vars_of_interest['f1'] = f1
         vars_of_interest['SHD'] = SHD
         if bn_type == 'composite': 
             vars_of_interest['Models'] = models
-        
-        write = Write()
-        write.write_txt(vars_of_interest, path = os.path.join(parentdir, 'examples', 'results'), file_name = 'results_' + file + '_run_' + str(number) + '.txt')
+
+        vars_of_interest['Generation number'] = optimiser.current_generation_num
+        vars_of_interest['Population number'] = optimiser.graph_optimizer_params.pop_size
+
+
+        # classical_
+        # classical_adaptive_bandit_results_
+
+        # write = Write()
+        # write.write_txt(vars_of_interest, path = os.path.join(parentdir, 'examples', 'results'), file_name = 'classical_adaptive_bandit_results_' + file + '_run_' + str(number) + '.txt')
         
 
 
 if __name__ == '__main__':
-
-    files = ['asia', 'cancer', 'earthquake', 'sachs', 'healthcare', 'magic-niab', 'mehra-complete', 'alarm', 'barley', 'child', 'ecoli70', 'hailfinder', 'insurance', 'mildew', 'sangiovese', 'survey', 'water']
+    # ['asia', 'cancer', 'earthquake', 'sachs', 'survey', 'healthcare', 'sangiovese', 'alarm', 'barley', 'child', 'insurance', 'mildew', 'water', 'ecoli70', 'magic-niab', 'mehra-complete', 'hailfinder', ]
+     
+    #    'cancer', 'earthquake', 'sachs', 'survey', 'healthcare', 'sangiovese', 'alarm', 'barley', 'child', 'insurance', 'mildew', 'water', 'ecoli70', 
+    files = ['sachs'] # , 'mehra-complete', 'hailfinder'
 
     # размер популяции     
     pop_size = 40
     # количество поколений
-    n_generation = 100
+    n_generation = 1000
     # вероятность кроссовера
     crossover_probability = 0.8
     # вероятность мутации 
@@ -227,13 +262,16 @@ if __name__ == '__main__':
     random_seed = [87, 60, 37, 99, 42, 92, 48, 91, 86, 33]
 
     # количество прогонов
-    n = 10
+    n = 1
     for file in files:
-        for bn_type in ['classical', 'composite']: 
-            number = 1
-            while number <= n:
-                run_example(file) 
-                number += 1 
+        try:
+            for bn_type in ['classical']: 
+                number = 1
+                while number <= n:
+                    run_example(file) 
+                    number += 1 
+        except:
+            pass
 
 
 

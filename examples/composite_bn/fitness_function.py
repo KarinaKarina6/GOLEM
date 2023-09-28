@@ -13,6 +13,8 @@ from examples.bn.bn_model import BNModel
 from pgmpy.models import BayesianNetwork
 from pgmpy.estimators import MaximumLikelihoodEstimator
 from pgmpy.metrics import log_likelihood_score
+from pgmpy.estimators import K2Score
+
 
 class FitnessFunction():
 
@@ -121,7 +123,7 @@ class FitnessFunction():
         return score
 
 
-    def composite_metric(self, graph: CompositeModel, data_train: pd.DataFrame, data_test: pd.DataFrame,percent = 0.02):
+    def composite_metric(self, graph: CompositeModel, data_train: pd.DataFrame, data_test: pd.DataFrame, percent = 0.02):
         # data_all = data
         # data_train , data_test = train_test_split(data_all, train_size = 0.8, random_state=42, shuffle = False)
         score, len_data = 0, len(data_train)
@@ -179,5 +181,23 @@ class FitnessFunction():
             score = round(-score)
         except:
             score = -score
+
+        return score
+
+    def classical_K2(self, graph: CompositeModel, data_train: pd.DataFrame, data_test: pd.DataFrame, percent = 0.02):
+        score = 0
+        graph_nx, labels = graph_structure_as_nx_graph(graph)
+        struct = []
+        for pair in graph_nx.edges():
+            l1 = str(labels[pair[0]])
+            l2 = str(labels[pair[1]])
+            struct.append([l1, l2])
+        
+        bn_model = BayesianNetwork(struct)
+        bn_model.add_nodes_from(data_train.columns)    
+        
+        score = K2Score(data_train).score(bn_model)
+
+        score = round(-score, 2)
 
         return score

@@ -56,7 +56,7 @@ define a data-flow or inference process (e.g. bayesian networks that can be fitt
 Examples of GOLEM applications:
 
 - Automatic Machine Learning (AutoML) with optimal ML pipelines search in `FEDOT framework <https://github.com/aimclub/FEDOT>`_
-- Bayesian network structure search in `BAMT framework <https://github.com/ITMO-NSS-team/BAMT>`_
+- Bayesian network structure search in `BAMT framework <https://github.com/aimclub/BAMT>`_
 - Differential equation discovery for physical models in `EPDE framework <https://github.com/ITMO-NSS-team/EPDE>`_
 - Geometric design of physical objects in `GEFEST framework <https://github.com/aimclub/GEFEST>`_
 - `Neural architecture search <https://github.com/ITMO-NSS-team/nas-fedot>`_
@@ -80,7 +80,7 @@ Quick Start Example
 
 Following example demonstrates graph search using reference graph & edit distance metric. Optimizer is set up with a minimal set of parameters and simple single-point mutations. For more details see examples `simple_run.py <https://github.com/aimclub/GOLEM/blob/main/examples/synthetic_graph_evolution/simple_run.py>`_, `graph_search.py <https://github.com/aimclub/GOLEM/blob/main/examples/synthetic_graph_evolution/graph_search.py>`_ and `tree_search.py <https://github.com/aimclub/GOLEM/blob/main/examples/synthetic_graph_evolution/tree_search.py>`_ in directory `examples/synthetic_graph_evolution <https://github.com/aimclub/GOLEM/tree/main/examples/synthetic_graph_evolution>`_.
 
-.. code-block::
+.. code-block:: python
 
     def run_graph_search(size=16, timeout=8):
         # Generate target graph sought by optimizer using edit distance objective
@@ -225,11 +225,11 @@ There are various cases solved with GOLEM's algorithms:
 .. |rus| image:: https://img.shields.io/badge/lang-ru-yellow.svg
             :target: /README.rst
 
-.. |ITMO| image:: https://github.com/ITMO-NSS-team/open-source-ops/blob/add_badge/badges/ITMO_badge.svg
+.. |ITMO| image:: https://github.com/aimclub/open-source-ops/blob/add_badge/badges/ITMO_badge.svg
    :alt: Acknowledgement to ITMO
    :target: https://en.itmo.ru/en/
 
-.. |SAI| image:: https://github.com/ITMO-NSS-team/open-source-ops/blob/add_badge/badges/SAI_badge.svg
+.. |SAI| image:: https://github.com/aimclub/open-source-ops/blob/add_badge/badges/SAI_badge.svg
    :alt: Acknowledgement to SAI
    :target: https://sai.itmo.ru/
 

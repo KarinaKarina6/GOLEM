@@ -10,6 +10,7 @@ from golem.core.optimisers.genetic.operators.mutation import Mutation
 from golem.core.optimisers.genetic.operators.operator import PopulationT, EvaluationOperator
 from golem.core.optimisers.genetic.operators.selection import Selection
 from golem.core.optimisers.populational_optimizer import EvaluationAttemptsError
+from golem.core.utilities.data_structures import ensure_wrapped_in_sequence
 
 
 class ReproductionController:
@@ -36,8 +37,7 @@ class ReproductionController:
         selection: operator used in reproduction.
         mutation: operator used in reproduction.
         crossover: operator used in reproduction.
-        window_size: size in iterations of the moving window
-        to compute reproduction success rate.
+        window_size: size in iterations of the moving window to compute reproduction success rate.
     """
 
     def __init__(self,
@@ -60,6 +60,9 @@ class ReproductionController:
 
     @property
     def mean_success_rate(self) -> float:
+        """Returns mean success rate of reproduction + evaluation,
+        fraction of how many individuals were reproduced and mutated successfully.
+        Computed as average fraction for the last N iterations (N = window size param)"""
         return float(np.mean(self._success_rate_window))
 
     def reproduce_uncontrolled(self,
@@ -78,7 +81,7 @@ class ReproductionController:
         #  It can be faster if it could.
         selected_individuals = self.selection(population, pop_size)
         new_population = self.crossover(selected_individuals)
-        new_population = self.mutation(new_population)
+        new_population = ensure_wrapped_in_sequence(self.mutation(new_population))
         new_population = evaluator(new_population)
         return new_population
 
